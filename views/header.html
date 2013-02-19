@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>WebProxy</title>
+<base href="{PROTOCOL}://{PROXY_HOSTNAME}/" />
+<meta name="author" content="Hugo Leisink" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="apple-touch-icon" href="/tunnel.png" />
+<style type="text/css">
+	/* Layout
+	 */
+	* {
+		margin:0;
+		padding:0;
+	}
+	body {
+		background-color:#0b1933;
+		font-family:sans-serif;
+		font-size:12px;
+	}
+	div.wrapper {
+		position:relative;
+		width:650px;
+		margin:70px auto 20px auto;
+		background-color:#ffffff;
+		padding:0px 30px 20px 30px;
+		border-top:3px solid #ce6c1c;
+		border-bottom-left-radius:10px;
+		border-bottom-right-radius:10px;
+	}
+	img.logo {
+		position:absolute;
+		right:20px;
+		top:-65px;
+		width:100px;
+	}
+
+	/* Content
+	 */
+	div.notice {
+		padding:8px 14px;
+		background-color:#c0ffc0;
+		border:1px solid #60ff60;
+		border-radius:5px;
+		margin-top:20px;
+		width:400px;
+	}
+	h1 {
+		color:#f0f0f0;
+		position:absolute;
+		top:-45px;
+		left:-5px;
+		font-size:28px;
+		font-weight:normal;
+		font-style:italic;
+	}
+	h2 {
+		color:#3b578b;
+		font-size:18px;
+		margin:40px 0 10px 0;
+		border-bottom:1px solid #808080;
+	}
+	p {
+		line-height:180%;
+		margin-bottom:15px;
+	}
+	a {
+		color:#ed7b0a;
+	}
+	/* Forms
+	 */
+	input.text {
+		margin:0 3px;
+		width:500px;
+		border-radius:3px;
+		border:1px solid #404040;
+		background-color:#ffe0c0;
+	}
+	input.button {
+		padding:0 10px;
+	}
+	/* Quick links
+	 */
+	ul.links {
+		list-style-position:inside;
+		margin-left:10px;
+	}
+	ul.links li {
+		width:200px;
+		float:left;
+	}
+	ul.links li:last-child {
+		float:none;
+	}
+	/* Settings
+	 */
+	table.settings {
+		margin-bottom:15px;
+	}
+	table.settings td:first-child {
+		width:150px;
+	}
+	/* Footer
+	 */
+	p.version {
+		height:0;
+		margin:0;
+		color:#a0a0a0;
+		text-align:right;
+		position:absolute;
+		bottom:30px;
+		right:30px;
+	}
+	ul.footer {
+		margin-top:30px;
+		border-top:1px solid #a0a0a0;
+		padding-top:1px;
+	}
+	ul.footer li {
+		display:inline;
+		border-left:1px solid #a0a0a0;
+		padding:2px 15px;
+	}
+</style>
+<script type="text/javascript">
+<!--
+	function explode(delimiter, string, limit) {
+		if ((arguments.length < 2) || (typeof delimiter == 'undefined') || (typeof string == 'undefined')) {
+			return null;
+		} else if ((delimiter === '') || (delimiter === false) || (delimiter === null)) {
+			return false;
+		} else if ((typeof delimiter == 'function') || (typeof delimiter == 'object') || (typeof string == 'function') || (typeof string == 'object')) {
+			return { 0: '' };
+		}
+
+		if (delimiter === true) {
+			delimiter = '1';
+		}
+
+		delimiter += '';
+		string += '';
+		var s = string.split(delimiter);
+
+		if (typeof limit === 'undefined') {
+			return s;
+		}
+
+		if (limit === 0) {
+			limit = 1;
+		}
+
+		if (limit > 0) {
+			if (limit >= s.length ) {
+				return s;
+			}
+			return s.slice( 0, limit - 1 ).concat( [ s.slice( limit - 1 ).join( delimiter ) ] );
+		}
+
+		if (-limit >= s.length) {
+			return [];
+		}
+
+		s.splice(s.length + limit);
+		return s;
+	}
+
+	function proxy_url() {
+		url = document.getElementById("url").value;
+		parts = explode("/", url, 2);
+		if ((hostname = parts[0]) == "") {
+			alert("Enter a website URL.");
+			document.getElementById("url").focus();
+			return;
+		} else if (typeof (uri = parts[1]) == "undefined") {
+			uri = "";
+		}
+
+		document.location = "{PROTOCOL}://" + hostname + ".{PROXY_HOSTNAME}/" + uri;
+	}
+//-->
+</script>
+</head>
+
+<body>
+<div class="wrapper">
+<img src="/tunnel.png" alt="logo" class="logo" />
+<h1>There is a site at the end of the tunnel.</h1>

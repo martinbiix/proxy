@@ -1,0 +1,4 @@
+<IfModule rewrite_module>
+	RewriteEngine                    on
+	RewriteRule .*                   index.php [QSA]
+</IfModule>
