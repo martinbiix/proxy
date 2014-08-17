@@ -1,5 +1,5 @@
 <?php
-	define("VERSION", "2.3");
+	define("VERSION", "2.5");
 
 	define("SESSION_KEY", "proxy_session_key");
 
@@ -9,8 +9,16 @@
 	define("INTERNAL_ERROR",     -4);
 	define("FORBIDDEN_HOSTNAME", -5);
 	define("LOOPBACK",           -6);
+	define("LOCAL_FILE",         -7);
+
+	define("MB", "1048576");
 
 	$proxy_pages = array("disclaimer");
+
+	$local_files = array(
+		"tunnel.png"  => "image/png",
+		"favicon.ico" => "image/x-ico",
+		"robots.txt"  => "text/plain");
 
 	/* Class autoloader
 	 */

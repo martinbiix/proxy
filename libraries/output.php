@@ -4,6 +4,7 @@
 		private $quick_links = null;
 		private $working_dir = null;
 		private $output = "";
+		private $enabled = true;
 
 		/* Constructor
 		 */
@@ -21,6 +22,10 @@
 		/* Destructor
 		 */
 		public function __destruct() {
+			if ($this->enabled == false) {
+				return;
+			}
+
 			$this->show_file("footer", array("VERSION" => VERSION));
 
 			print $this->output;
@@ -43,12 +48,27 @@
 			$this->output .= $output;
 		}
 
+		/* Show local file
+		 */
+		public function show_local_file($filename, $local_files) {
+			header("Content-Type: ".$local_files[$filename]);
+			header("Content-Length: ".filesize($filename));
+			header("Expires: ".date("D, d M Y H:i:s", time() + (14 * 86400))." GMT");
+			readfile($filename);
+
+			$this->enabled = false;
+		}
+
 		/* Login form
 		 */
 		public function show_login_form($message = null) {
 			header("Status: 407");
 
-			$this->show_file("login");
+			$data = array(
+				"PROTOCOL" => ($_SERVER["HTTPS"] == "on") ? "https" : "http",
+				"HOSTNAME" => $_SERVER["HTTP_HOST"],
+				"URI"      => $_SERVER["REQUEST_URI"]);
+			$this->show_file("login", $data);
 
 			if ($message !== null) {
 				$this->show_file("error", array("MESSAGE" => $message));
@@ -59,7 +79,11 @@
 
 		/* URL form
 		 */
-		public function show_url_form($url = "", $message = null) {
+		public function show_url_form($url = "", $message = null, $status = null) {
+			if ($status !== null) {
+				header("Status: ".$status);
+			}
+
 			$protocol = ($_SERVER["HTTPS"] == "on") ? "https" : "http";
 
 			$this->show_file("url_form", array("PROTOCOL" => $protocol, "URL" => $url));

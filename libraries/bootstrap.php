@@ -5,26 +5,16 @@
 	 */
 
 	class bootstrap {
-		private $proxy_hostname = null;
-		private $access_codes = null;
-		private $no_authentication = null;
-		private $whitelist = null;
-		private $blacklist = null;
-		private $user_input = null;
-		private $hostname = null;
+		private $config = null;
 
 		/* Constructor
 		 *
-		 * INPUT:  string proxy hostname, array access codes, array no authentication, array whitelist, array blacklist
+		 * INPUT:  array configration
 		 * OUTPUT: -
 		 * ERROR:  -
 		 */
-		public function __construct($proxy_hostname, $access_codes, $no_authentication, $whitelist, $blacklist) {
-			$this->proxy_hostname = $proxy_hostname;
-			$this->access_codes = $access_codes;
-			$this->no_authentication = $no_authentication;
-			$this->whitelist = $whitelist;
-			$this->blacklist = $blacklist;
+		public function __construct($configuration) {
+			$this->config = $configuration;
 		}
 
 		/* Magic method get
@@ -35,11 +25,26 @@
 		 */
 		public function __get($key) {
 			switch ($key) {
-				case "user_input": return $this->user_input;
-				case "hostname": return $this->hostname;
+				case "user_input": return $this->config["user_input"];
+				case "hostname": return $this->config["hostname"];
 			}
 
 			return null;
+		}
+
+		private function hostname_in_list($hostname, $list) {
+			foreach ($list as $item) {
+				if ($item[0] == "*") {
+					$item = substr($item, 1);
+					if (substr($hostname, -strlen($item)) == $item) {
+						return true;
+					}
+				} else if ($hostname == $item) {
+					return true;
+				}
+			}
+
+			return false;
 		}
 
 		/* Execute bootstrap procedure
@@ -58,51 +63,55 @@
 				}
 			}
 
-			/* Authentication
-			 */
-			if (count($this->access_codes) > 0) {
-				if (in_array($_SESSION["access_code"], $this->access_codes)) {
-					// User already logged in
-				} else if (in_array($_POST["access_code"], $this->access_codes)) {
-					$_SESSION["access_code"] = $_POST["access_code"];
-				} else if (in_array($_SERVER["REMOTE_ADDR"], $this->no_authentication) == false) {
-					return LOGIN_REQUIRED;
-				}
-			}
-
 			/* User input
 			 */
 			$url = $_SERVER["HTTP_HOST"];
 			$url_len = strlen($url);
-			$proxy_len = strlen($this->proxy_hostname);
+			$proxy_len = strlen($this->config["proxy_hostname"]);
 			$host_len = $url_len - $proxy_len;
 
 			if ($url_len < $proxy_len) {
 				return INTERNAL_ERROR;
-			} else if (substr($url, $host_len) != $this->proxy_hostname) {
+			} else if (substr($url, $host_len) != $this->config["proxy_hostname"]) {
 				return INTERNAL_ERROR;
 			} else {
-				$this->hostname = rtrim(substr($url, 0, $host_len), ".");
+				$this->config["hostname"] = rtrim(substr($url, 0, $host_len), ".");
+			}
+
+			/* Authentication
+			 */
+			if (count($this->config["access_codes"]) > 0) {
+				if ($this->hostname_in_list($this->config["hostname"], $this->config["free_access"]) == false) {
+					if (in_array($_SESSION["access_code"], $this->config["access_codes"])) {
+						// User already logged in
+						$_SERVER["REQUEST_METHOD"] = "GET";
+					} else if (in_array($_POST["access_code"], $this->config["access_codes"])) {
+						$_SESSION["access_code"] = $_POST["access_code"];
+						$_SERVER["REQUEST_METHOD"] = "GET";
+					} else if (in_array($_SERVER["REMOTE_ADDR"], $this->config["no_authentication"]) == false) {
+						return LOGIN_REQUIRED;
+					}
+				}
 			}
 
 			if ($host_len == 0) {
 				return NO_USER_INPUT;
 			}
 
-			$this->user_input = $this->hostname;
+			$this->config["user_input"] = $this->config["hostname"];
 			if ($_SERVER["REQUEST_URI"] != "/") {
-				$this->user_input .= $_SERVER["REQUEST_URI"];
+				$this->config["user_input"] .= $_SERVER["REQUEST_URI"];
 			}
 
 			/* Access control
 			 */
-			if (count($this->whitelist) > 0) {
-				if (in_array($this->hostname, $this->whitelist) == false) {
+			if (count($this->config["whitelist"]) > 0) {
+				if ($this->hostname_in_list($this->config["hostname"], $this->config["whitelist"]) == false) {
 					return FORBIDDEN_HOSTNAME;
 				}
 			}
 
-			if (in_array($this->hostname, $this->blacklist)) {
+			if ($this->hostname_in_list($this->config["hostname"], $this->config["blacklist"])) {
 				return FORBIDDEN_HOSTNAME;
 			}
 

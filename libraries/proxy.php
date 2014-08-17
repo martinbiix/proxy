@@ -8,10 +8,12 @@
 		private $proxy_hostname = null;
 		private $ignore_cookies = array();
 		private $headers_to_server = array("Accept", "Accept-Charset",
-			"Accept-Language", "Referer", "User-Agent");
+			"Accept-Language", "Referer", "User-Agent", "X-Requested-With",
+			"Authorization");
 		private $headers_to_client = array("Accept-Ranges", "Cache-Control",
 			"Content-Type", "Content-Range", "DNT", "ETag", "Expires",
-			"Last-Modified", "Location", "Pragma", "Refresh", "Set-Cookie");
+			"Last-Modified", "Location", "Pragma", "Refresh", "Set-Cookie",
+			"WWW-Authenticate");
 
 		/* Constructor
 		 *
@@ -185,7 +187,9 @@
 				/* CSS
 				 */
 				$result["body"] = $this->rewrite_to_proxy($result["body"], "url(", ")");
-			} else if (substr($result["headers"]["Content-Type"], 0, 7) == "text/js") {
+			} else if ((substr($result["headers"]["Content-Type"], 0, 22) == "application/javascript") ||
+			           (substr($result["headers"]["Content-Type"], 0, 24) == "application/x-javascript") ||
+			           (substr($result["headers"]["Content-Type"], 0, 15) == "text/javascript")) {
 				/* Javascript
 				 */
 				$result["body"] = $this->rewrite_to_proxy($result["body"], "='", "'");
@@ -210,6 +214,15 @@
 			}
 
 			print $result["body"];
+
+			if ($result["sock"] !== null) {
+				while (($line = fgets($result["sock"])) !== false) {
+					print $line;
+				}
+
+				fclose($result["sock"]);
+				$result["sock"] = null;
+			}
 
 			return 0;
 		}
